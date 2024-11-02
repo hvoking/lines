@@ -1,0 +1,12 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color:transparent;
+  background-color: rgba(23, 23, 32, 1);
+}
+.App {
+  overflow: hidden;
+  display: grid;
+}

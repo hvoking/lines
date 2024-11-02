@@ -1,0 +1,29 @@
+.main {
+	display: grid;
+	grid-template-columns: 5fr 14fr 5fr;
+	grid-gap: 5px;
+	overflow: hidden;
+	font-family: ubuntu;
+}
+.subtitle-style {
+	font-size: 0.7em;
+	color: rgba(255, 255, 255, 0.6);
+	padding-top: 2px;
+}
+.title-wrapper-style {
+	padding-left: 20px;
+	padding-top: 5px;
+	color: rgba(255, 255, 255, 1);
+}
+// mobile-style
+@media screen and (max-width: 1000px) {
+	.main {
+		grid-template-columns: auto;
+	}
+	.left-wrapper {
+		display: none;
+	}
+	.right-wrapper {
+		display: none;
+	}
+}
