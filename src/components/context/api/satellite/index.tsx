@@ -1,6 +1,9 @@
 // React imports
 import { useState, useEffect, useContext, createContext } from 'react';
 
+// App imports
+import { normalizeLongitude, splitPolyline } from './utils';
+
 // Context imports
 import { useMapbox } from '../../mapbox';
 
@@ -13,35 +16,7 @@ export const useSatelliteApi = () => {
 export const SatelliteApiProvider = ({children}: any) => {
 	const { mapRef } = useMapbox();
 	const [ satellitePaths, setSatellitePaths ] = useState<any>([]);
-
-	const normalizeLongitude = (longitude: any) => {
-	    return ((longitude + 180) % 360 + 360) % 360 - 180;
-	};
-
-	const splitPolyline = (coordinates: any) => {
-	    const segments = [];
-	    let currentSegment: any = [];
-
-	    coordinates.forEach(([lon, lat]: any) => {
-	        if (currentSegment.length === 0) {
-	            currentSegment.push([lon, lat]);
-	        } else {
-	            const lastLon = currentSegment[currentSegment.length - 1][0];
-	            if (Math.abs(lon - lastLon) > 180) {
-	                segments.push(currentSegment);
-	                currentSegment = [[ lon, lat ]];
-	            } else {
-	                currentSegment.push([ lon, lat ]);
-	            }
-	        }
-	    });
-
-	    if (currentSegment.length > 0) {
-	        segments.push(currentSegment);
-	    }
-
-	    return segments;
-	};
+	const [ currentPosition, setCurrentPosition ] = useState<any>(null);
 
 	const updateAnimatedPath = (newPositions: any, satelliteId: any, color: any) => {
 		const mapCurrent = mapRef.current;
@@ -57,7 +32,7 @@ export const SatelliteApiProvider = ({children}: any) => {
 
 	    // Split the path to handle 180-degree crossing
 	    const segments = splitPolyline(satellitePaths);
-	    
+
 	    const lineFeatures = segments.map((segment: any) => ({
 	        'type': 'Feature',
 	        'geometry': {
@@ -121,12 +96,12 @@ export const SatelliteApiProvider = ({children}: any) => {
 	    });
 	};
 
+	const sat_id = 39084;
 	const destination_lat = 40.4207;
     const destination_lon = -3.7070;
-    const sat_id = 39084;
     const total_future_time = 5940
 
-	const fetchAndUpdateData = () => {
+	const fetchAndUpdateData = async () => {
 		const url = `
 		    ${process.env.REACT_APP_API_URL}/
 		    sats_api
@@ -136,26 +111,16 @@ export const SatelliteApiProvider = ({children}: any) => {
 		    &total_future_time=${total_future_time}
 		`.replace(/\s/g, '');
 	    
-	    fetch(url)
-	        .then(response => response.json())
-	        .then(data => {
-	            if (!data.error) {
-	                const positions1 = data.positions;
-
-	                // Update paths for both satellites
-	                if (positions1.length > 0) {
-	                    updateAnimatedPath(positions1, 'satellite1', '#FF0000');
-	                }
-	            } else {
-	                console.error(data.error);
-	            }
-	        })
-	        .catch(error => console.error('Error fetching satellite positions:', error));
+	    const res = await fetch(url);
+	    const receivedData = await res.json();
+	    updateAnimatedPath(receivedData.positions, 'satellite1', '#FF0000');
 	};
 
-	// Start updating data periodically
-	fetchAndUpdateData();
-	setInterval(fetchAndUpdateData, 15300);
+	useEffect(() => {
+        fetchAndUpdateData();
+        const intervalId = setInterval(fetchAndUpdateData, 15000);
+        return () => clearInterval(intervalId);
+    }, []);
 
 	return (
 		<SatelliteApiContext.Provider value={{ fetchAndUpdateData }}>
