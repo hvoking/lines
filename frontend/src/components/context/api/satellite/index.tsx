@@ -12,7 +12,7 @@ export const useSatelliteApi = () => {
 
 export const SatelliteApiProvider = ({children}: any) => {
 	const { mapRef } = useMapbox();
-	const [ satellitePaths, setSatellitePaths ] = useState<any>({ "satellite1": [], "satellite2": []	});
+	const [ satellitePaths, setSatellitePaths ] = useState<any>([]);
 
 	const normalizeLongitude = (longitude: any) => {
 	    return ((longitude + 180) % 360 + 360) % 360 - 180;
@@ -52,18 +52,12 @@ export const SatelliteApiProvider = ({children}: any) => {
 	    // Normalize and add the new position to the path
 	    const latestPosition = newPositions[newPositions.length - 1];
 	    const { satlatitude, satlongitude } = latestPosition;
-
-	    setSatellitePaths((prevPaths: any) => {
-			const updatedPaths = { ...prevPaths };
-			updatedPaths[satelliteId] = [
-				...updatedPaths[satelliteId],
-				[normalizeLongitude(satlongitude), satlatitude]
-			];
-			return updatedPaths;
-		});
+	    const currentPoint = [ normalizeLongitude(satlongitude), satlatitude ];
+	    setSatellitePaths((prevPaths: any) => [...prevPaths, currentPoint]);
 
 	    // Split the path to handle 180-degree crossing
-	    const segments = splitPolyline(satellitePaths[satelliteId]);
+	    const segments = splitPolyline(satellitePaths);
+	    
 	    const lineFeatures = segments.map((segment: any) => ({
 	        'type': 'Feature',
 	        'geometry': {
@@ -127,20 +121,30 @@ export const SatelliteApiProvider = ({children}: any) => {
 	    });
 	};
 
+	const destination_lat = 40.4207;
+    const destination_lon = -3.7070;
+    const sat_id = 39084;
+    const total_future_time = 5940
+
 	const fetchAndUpdateData = () => {
-	    fetch('http://localhost:5000/get_satellite_positions')
+		const url = `
+		    ${process.env.REACT_APP_API_URL}/
+		    sats_api
+		    ?sat_id=${sat_id}
+		    &destination_lat=${destination_lat}
+		    &destination_lon=${destination_lon}
+		    &total_future_time=${total_future_time}
+		`.replace(/\s/g, '');
+	    
+	    fetch(url)
 	        .then(response => response.json())
 	        .then(data => {
 	            if (!data.error) {
-	                const positions1 = data.satellite1;
-	                const positions2 = data.satellite2;
+	                const positions1 = data.positions;
 
 	                // Update paths for both satellites
 	                if (positions1.length > 0) {
 	                    updateAnimatedPath(positions1, 'satellite1', '#FF0000');
-	                }
-	                if (positions2.length > 0) {
-	                    updateAnimatedPath(positions2, 'satellite2', '#0000FF');
 	                }
 	            } else {
 	                console.error(data.error);
