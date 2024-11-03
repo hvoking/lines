@@ -1,3 +1,7 @@
+// App imports
+import { Footprint } from './footprint';
+import { Line } from './line';
+
 // Context imports
 import { useMapbox } from '../../context/mapbox';
 
@@ -14,7 +18,9 @@ export const Maps = () => {
       mapStyle={basemap}
       initialViewState={viewport} 
       mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-    >
+    > 
+      <Line/>
+      <Footprint/>
     </Map>
   );
 }
