@@ -3,7 +3,7 @@ import { Footprint } from './footprint';
 import { Line } from './line';
 
 // Context imports
-import { useMapbox } from '../../context/mapbox';
+import { useMapbox } from 'context/mapbox';
 
 // Third-party imports
 import { Map } from 'react-map-gl';

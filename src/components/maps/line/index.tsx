@@ -1,5 +1,5 @@
 // Context imports
-import { useSatelliteApi } from '../../../context/api/satellite';
+import { useSatelliteApi } from 'context/api/satellite';
 
 // Third-party imports
 import { Source, Layer, LayerProps } from 'react-map-gl';
@@ -15,8 +15,8 @@ export const Line = () => {
         type: 'line',
         source: 'line-footprint',
         paint: {
-            'line-color': 'rgba(255, 255, 0, 1)', // Change color to see if it renders
-            'line-width': 10, // Use a smaller width
+            'line-color': 'rgba(255, 255, 0, 1)',
+            'line-width': 10,
         },
     };
 

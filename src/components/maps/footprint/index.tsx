@@ -1,5 +1,5 @@
 // Context imports
-import { useSatelliteApi } from '../../../context/api/satellite';
+import { useSatelliteApi } from 'context/api/satellite';
 
 // Third-party imports
 import { Source, Layer, LayerProps } from 'react-map-gl';

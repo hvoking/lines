@@ -1,5 +1,5 @@
 // App imports
-import { Main } from './components/main';
+import { Main } from 'components';
 import './styles.scss';
 
 export const App = () => {
